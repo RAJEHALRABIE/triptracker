@@ -1,0 +1,6 @@
+﻿Package: triptracker-1.0.0.zip
+Location: attached / repository path as provided
+SHA256: 7DE8DFBAE82EC29126C03AFF83A813D6867B3BF50460A360BD9A303C30192C2E
+METADATA: triptracker-1.0.0.METADATA.txt (included)
+Checks: 1) Verify SHA256; 2) Unpack and confirm package.json, openapi.yaml, README.md, src/index.tsx, components/*; 3) Run build/tests defined in package.json
+Failure handling: If SHA mismatch or missing files mark as corrupted and request re-upload from source owner
