@@ -1,0 +1,93 @@
+{
+  "id": "tripTracker",
+  "initial": "shiftIdle",
+  "context": {
+    "shiftId": null,
+    "tripId": null,
+    "retryCount": 0
+  },
+  "states": {
+    "shiftIdle": {
+      "on": {
+        "SHIFT_START": {
+          "target": "shiftActive",
+          "actions": ["createShift","lockStartShift","enqueueShiftStart"]
+        }
+      }
+    },
+    "shiftActive": {
+      "on": {
+        "SHIFT_PAUSE": [
+          {
+            "cond": "noActiveTrip",
+            "target": "shiftPaused",
+            "actions": ["markShiftPaused","enqueueShiftPause"]
+          }
+        ],
+        "SHIFT_END_INTENT": {
+          "actions": ["openShiftEndModal"]
+        },
+        "TRIP_START": [
+          {
+            "cond": "tripIdle",
+            "target": "tripActive",
+            "actions": ["createTrip","lockTripButtons","enqueueTripStart"]
+          }
+        ]
+      }
+    },
+    "shiftPaused": {
+      "on": {
+        "SHIFT_RESUME": {
+          "target": "shiftActive",
+          "actions": ["resumeShift","enqueueShiftResume"]
+        },
+        "SHIFT_END_INTENT": {
+          "actions": ["openShiftEndModal"]
+        }
+      }
+    },
+    "tripActive": {
+      "on": {
+        "TRIP_END_INTENT": {
+          "actions": ["openValueModal"]
+        },
+        "TRIP_END_CONFIRM": [
+          {
+            "cond": "validValue",
+            "target": "shiftActive",
+            "actions": ["finalizeTrip","enqueueTripEnd","unlockButtons"]
+          },
+          {
+            "cond": "valueZeroOrEmpty",
+            "actions": ["openZeroConfirmModal"]
+          }
+        ]
+      }
+    }
+  },
+  "guards": {
+    "noActiveTrip": "context.tripId === null",
+    "tripIdle": "context.tripId === null",
+    "validValue": "true",
+    "valueZeroOrEmpty": "false"
+  },
+  "actions": {
+    "createShift": "createShiftRecord",
+    "lockStartShift": "uiLockButtons",
+    "enqueueShiftStart": "pushSyncQueue",
+    "markShiftPaused": "setShiftPaused",
+    "enqueueShiftPause": "pushSyncQueue",
+    "openShiftEndModal": "uiOpenShiftEndModal",
+    "createTrip": "createTripRecord",
+    "lockTripButtons": "uiLockTripButtons",
+    "enqueueTripStart": "pushSyncQueue",
+    "openValueModal": "uiOpenValueModal",
+    "finalizeTrip": "computeAndSaveTrip",
+    "enqueueTripEnd": "pushSyncQueue",
+    "unlockButtons": "uiUnlockButtons",
+    "resumeShift": "clearShiftPaused",
+    "enqueueShiftResume": "pushSyncQueue",
+    "openZeroConfirmModal": "uiOpenZeroConfirm"
+  }
+}
